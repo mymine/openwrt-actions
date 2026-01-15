@@ -102,6 +102,16 @@ jobs:
       - name: remove Nodes
         run: sed -i 's/DEPENDS:=@(HAS_FPU||KERNEL_MIPS_FPU_EMULATOR||SOFT_FLOAT)/DEPENDS:=@(HAS_FPU||KERNEL_MIPS_FPU_EMULATOR)/g' ./openwrt/feeds/packages/lang/node/Makefile
 
+      - name: Disable manpages for kmod
+        run: |
+          # Patch kmod Makefile to disable manpages build to avoid requiring scdoc
+          # This is needed because scdoc is not available in the build environment
+          # and manpages are not required for the router firmware
+          cd openwrt/feeds/packages/utils/kmod
+          if ! grep -q "disable-manpages" Makefile; then
+            sed -i '/^include $(INCLUDE_DIR)\/package.mk/a\\nCONFIGURE_ARGS += --disable-manpages' Makefile
+          fi
+
       - name: Custom configure file
         run: |
           cd openwrt
