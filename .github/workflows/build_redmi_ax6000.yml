@@ -109,6 +109,8 @@ jobs:
           # and manpages are not required for the router firmware
           cd openwrt/feeds/packages/utils/kmod
           if ! grep -q "disable-manpages" Makefile; then
+            # Use awk to insert CONFIGURE_ARGS after the package.mk include line
+            # Note: \$ and \. are escaped for shell/regex matching
             awk '/^include \$\(INCLUDE_DIR\)\/package\.mk/ {print; print ""; print "CONFIGURE_ARGS += --disable-manpages"; next} 1' Makefile > Makefile.tmp
             mv Makefile.tmp Makefile
           fi
